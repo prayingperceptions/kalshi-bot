@@ -99,11 +99,18 @@ _private_key = None
 
 
 def _load_private_key():
-    """Load the RSA private key from PEM file (cached)."""
+    """Load the RSA private key from PEM file or ENV variable (cached)."""
     global _private_key
     if _private_key is None:
-        with open(KALSHI_PRIVATE_KEY_PATH, "rb") as f:
-            _private_key = serialization.load_pem_private_key(f.read(), password=None)
+        # First check if the key was passed directly as an environment variable (for Railway)
+        env_key = os.getenv("KALSHI_PRIVATE_KEY_CONTENT")
+        if env_key:
+            # Handle literal \n if passed as a single line string
+            clean_key = env_key.replace("\\n", "\n").encode("utf-8")
+            _private_key = serialization.load_pem_private_key(clean_key, password=None)
+        else:
+            with open(KALSHI_PRIVATE_KEY_PATH, "rb") as f:
+                _private_key = serialization.load_pem_private_key(f.read(), password=None)
     return _private_key
 
 
