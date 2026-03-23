@@ -945,7 +945,7 @@ def poll_telegram_commands():
                 _reenable_pending = False
                 send_telegram("❌ Re-enable cancelled.")
 
-            elif text == "/status":
+            elif text in ("/status", "/start"):
                 bankroll = get_balance()
                 hwm = _load_hwm()
                 mode = "🔔 ALERT ONLY" if ALERT_ONLY else "⚡ AUTO-EXECUTE"
@@ -994,8 +994,8 @@ def main():
     if not KALSHI_KEY_ID:
         log.error("KALSHI_KEY_ID not set — exiting")
         sys.exit(1)
-    if not os.path.exists(KALSHI_PRIVATE_KEY_PATH):
-        log.error("Private key not found at %s — exiting", KALSHI_PRIVATE_KEY_PATH)
+    if not os.path.exists(KALSHI_PRIVATE_KEY_PATH) and not os.getenv("KALSHI_PRIVATE_KEY_CONTENT"):
+        log.error("Private key not found at %s and KALSHI_PRIVATE_KEY_CONTENT not set — exiting", KALSHI_PRIVATE_KEY_PATH)
         sys.exit(1)
 
     # Run initial scan immediately
@@ -1030,6 +1030,8 @@ def main():
     # Daily portfolio summary at 8pm
     schedule.every().day.at("20:00").do(send_portfolio_summary)
     log.info("Daily portfolio summary scheduled for 8:00 PM")
+
+    send_telegram("🟢 *Bot Online*\nKalshi weather arb running.")
 
     while _running:
         schedule.run_pending()
