@@ -1,0 +1,13 @@
+.env
+kalshi_private.pem
+*.pem
+__pycache__/
+*.pyc
+.DS_Store
+bot.log
+trade_log.jsonl
+last_settlement_ts.txt
+high_water_mark.txt
+moonshots_today.txt
+.vscode/
+pyrightconfig.json
